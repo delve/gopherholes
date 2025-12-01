@@ -6,6 +6,7 @@ import (
 	"aocgen/pkg/year2022"
 	"aocgen/pkg/year2023"
 	"aocgen/pkg/year2024"
+	"aocgen/pkg/year2025"
 )
 
 func RegisterYears() {
@@ -13,5 +14,6 @@ func RegisterYears() {
 	year2022.Init()
 	year2023.Init()
 	year2024.Init()
+	year2025.Init()
 
 }
