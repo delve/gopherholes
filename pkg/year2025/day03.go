@@ -23,27 +23,6 @@ func (p Day03) getJolts(bankIndex, digits int) int {
 	bank := p.batteryBanks[bankIndex]
 	// FS Go, why can't i use a slice here
 	// tens := max(bank[0:len(bank)-1]...)
-	tens := 0
-	tPos := 0
-	for pos, val := range bank[0 : len(bank)-1] {
-		if val > tens {
-			tens = val
-			tPos = pos
-		}
-	}
-	ones := 0
-	for _, val := range bank[tPos+1:] {
-		if val > ones {
-			ones = val
-		}
-	}
-	return tens*10 + ones
-}
-
-func (p Day03) getJolts2(bankIndex, digits int) int {
-	bank := p.batteryBanks[bankIndex]
-	// FS Go, why can't i use a slice here
-	// tens := max(bank[0:len(bank)-1]...)
 	totalJolts := 0
 	cursor := 0
 	for i := digits; i >= 0; i-- {
@@ -68,7 +47,7 @@ func (p Day03) PartA(lines []string) any {
 	joltageDigits := 2
 
 	for i := 0; i < len(p.batteryBanks); i++ {
-		maxJolt += p.getJolts2(i, joltageDigits)
+		maxJolt += p.getJolts(i, joltageDigits)
 	}
 
 	if maxJolt == 357 || maxJolt == 17196 {
@@ -83,7 +62,7 @@ func (p Day03) PartB(lines []string) any {
 	joltageDigits := 12
 
 	for i := 0; i < len(p.batteryBanks); i++ {
-		bankJolts := p.getJolts2(i, joltageDigits)
+		bankJolts := p.getJolts(i, joltageDigits)
 		if bankJolts/100000000000 > 10 {
 			println("Bignum")
 			println(i)
