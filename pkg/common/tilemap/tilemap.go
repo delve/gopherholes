@@ -2,13 +2,18 @@ package tilemap
 
 import "fmt"
 
-type TileMap struct {
-	tileData map[complex128]Tile
-	// Maximum X and Y value, 0 based
-	boundary complex128
-	// Position of last tile added, for linebreak behavior
-	lastTile complex128
-}
+// type TileMapper interface {
+// 	MaxX() float64
+// 	MaxY() float64
+// 	SetColumns(float64)
+// 	SetArbitraryTile(Tile)
+// 	AddTile(Tile)
+// 	String() string
+// 	GetTileAt(float64, float64) Tile
+// 	CountAround(TileFilter, float64, float64) int
+// }
+
+type TileFilter func(Tile) bool
 
 type Tile interface {
 	SetPosition(float64, float64)
@@ -22,7 +27,15 @@ type Tile interface {
 	Rune() rune
 }
 
-func splitCoord(c complex128) (float64, float64) {
+type TileMap struct {
+	tileData map[complex128]Tile
+	// Maximum X and Y index value, 0 based
+	boundary complex128
+	// Position of last tile added, for linebreak behavior
+	lastTile complex128
+}
+
+func SplitCoord(c complex128) (float64, float64) {
 	return real(c), imag(c)
 }
 
@@ -35,10 +48,12 @@ func (tm *TileMap) setBoundaries(x, y float64) {
 	tm.boundary = complex(x, y)
 }
 
+// Returns the largest 0 based X (column) index
 func (tm TileMap) MaxX() float64 {
 	return real(tm.boundary)
 }
 
+// Returns the largest 0 based Y (row) index
 func (tm TileMap) MaxY() float64 {
 	return imag(tm.boundary)
 }
@@ -72,12 +87,10 @@ func (tm *TileMap) getNextTilePosition() (float64, float64) {
 		next += 1.0
 	}
 	tm.lastTile = next
-	return splitCoord(next)
+	return SplitCoord(next)
 }
 
-// Add a tile to the map. Tiles are added left to right until the maximum Y
-//
-//	value is reached, then moves down to the next row.
+// Add a tile to the map. Tiles are added left to right until the maximum Y value is reached, then moves down to the next row.
 func (tm *TileMap) AddTile(t Tile) {
 	if tm.tileData == nil {
 		tm.init()
@@ -86,6 +99,7 @@ func (tm *TileMap) AddTile(t Tile) {
 	tm.SetArbitraryTile(t)
 }
 
+// Returns a string representation of the map state
 func (tm TileMap) String() string {
 	rowHeader := "%2d:"
 	output := ""
@@ -111,58 +125,60 @@ func (tm TileMap) boundCheck(candidate complex128) bool {
 	return true
 }
 
-func (tm TileMap) TileAt(x, y float64) Tile {
+// Retrieve the tile struct at a given 0 based coordinate
+func (tm TileMap) GetTileAt(x, y float64) Tile {
 	return tm.tileData[complex(x, y)]
 }
 
-func (tm TileMap) CountAround(sample Tile, x, y float64) int {
+// Counts neighbors around a 0 based coordinate that match the provided Tile interface
+func (tm TileMap) CountAround(comparator TileFilter, x, y float64) int {
 	found := 0
 	center := complex(x, y)
 	target := center - 1 - 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center - 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center + 1 - 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center - 1
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center + 1
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center - 1 + 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center + 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 
 	target = center + 1 + 1i
 	if tm.boundCheck(target) &&
-		tm.tileData[target].GetValue() == sample.GetValue() {
+		comparator(tm.tileData[target]) {
 		found++
 	}
 	return found
