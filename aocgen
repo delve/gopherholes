@@ -1,3 +1,5 @@
 #!/bin/sh
+export AOC_SESSION=53616c7465645f5fccf75a74c551adea3e0581fb489bde791d3a1267117953f497b3301725583debf907eff8351d6948ab7d7be4047af9c082ec4f3a2471da26
+rm bin/aocgen
 go build -o bin/aocgen cmd/aocgen/main.go
 bin/aocgen $@
