@@ -2,6 +2,10 @@
 
 AOCgen is a tool to assist in solving Advent of Code in Go.
 
+Blatantly stolen from https://github.com/timkelleher/aocgen
+
+and unlinked to avoid accidental PRs.
+
 ## Setup
 
 Run AOCgen via executable: ```./aocgen```
